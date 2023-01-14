@@ -4,7 +4,7 @@ public class Queue {
     protected int size = 0;
 
     public Queue(int capacity) {
-        this.queue = new int[3];
+        this.queue = new int[capacity];
         this.index = 0;
     }
 

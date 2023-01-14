@@ -30,7 +30,7 @@ public class Client {
         }
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
 
         initConnection();
 
@@ -47,6 +47,7 @@ public class Client {
         SC secondChance = new SC(receivedCapacity);
 
         Thread algorithmThread = new Thread(()->{});
+        algorithmThread.start();
         while (true) {
             int receivedData = 0;
             try {
@@ -60,9 +61,14 @@ public class Client {
                 break;
             }
 
-            lru.replace(receivedData);
-            fifo.replace(receivedData);
-            secondChance.replace(receivedData);
+            algorithmThread.join();
+            int finalReceivedData = receivedData;
+            algorithmThread = new Thread(()->{
+                lru.replace(finalReceivedData);
+                fifo.replace(finalReceivedData);
+                secondChance.replace(finalReceivedData);
+            });
+            algorithmThread.start();
 
         }
 
@@ -203,7 +209,6 @@ class SC implements Replacer {
             seenRecently.put(newComer, false);
             return;
         }
-
 
         while (seenRecently.get(queue.get(replacerPtr))) {
             seenRecently.put(queue.get(replacerPtr), false);

@@ -20,6 +20,7 @@ public class Server {
 
         try {
             int memorySize = ThreadLocalRandom.current().nextInt(1, 10 + 1);
+            System.out.println("Memory Size: " + memorySize);
             socketOut.writeInt(memorySize);
 
             int memoryAccessCount = ThreadLocalRandom.current().nextInt(5, 100 + 1);
