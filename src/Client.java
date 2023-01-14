@@ -3,7 +3,6 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.ConnectException;
 import java.net.Socket;
-import java.util.EmptyStackException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Stack;
@@ -45,7 +44,9 @@ public class Client {
 
         FIFO fifo = new FIFO(receivedCapacity);
         LRU lru = new LRU(receivedCapacity);
+        SC secondChance = new SC(receivedCapacity);
 
+        Thread algorithmThread = new Thread(()->{});
         while (true) {
             int receivedData = 0;
             try {
@@ -59,15 +60,23 @@ public class Client {
                 break;
             }
 
-//            fifo.replace(receivedData);
             lru.replace(receivedData);
+            fifo.replace(receivedData);
+            secondChance.replace(receivedData);
 
         }
 
-        System.out.printf("Page Faults Of FIFO: %d\n", lru.getPageFaults());
+        System.out.printf(
+                "LRU:%d,FIFO:%d,Second-chance:%d\n",
+                lru.getPageFaults(),
+                fifo.getPageFaults(),
+                secondChance.getPageFaults()
+        );
 
 
     }
+
+
 
     public static DataInputStream getDataInputStream() throws IOException {
         if (socket == null)
@@ -113,11 +122,9 @@ class LRU implements Replacer {
     private final Queue queue;
     private int pageFaults = 0;
     private final Stack<Integer> recentlyUsed = new Stack<>();
-    private final int capacity;
 
     public LRU(int capacity) {
         queue = new Queue(capacity);
-        this.capacity = capacity;
     }
 
     @Override
@@ -165,36 +172,50 @@ class LRU implements Replacer {
         return queue.indexOf(minimumElement);
     }
 
-    private int getLatestUsingIndex(int element) {
-        Stack<Integer> tempStack = new Stack<>();
-        int output = -1;
-        for (int i = 0; i < this.capacity; i++) {
-            int popped;
-            try {
-                popped = this.recentlyUsed.pop();
-            } catch (EmptyStackException ignored) {
-                break;
-            }
-            if (popped == element)
-                output = i + 1;
-            tempStack.push(popped);
-        }
-        for (int i = 0; i < this.capacity; i++) {
-            int popped;
-            try {
-                popped = tempStack.pop();
-            } catch (EmptyStackException ignored) {
-                break;
-            }
-            this.recentlyUsed.push(popped);
-        }
-        return output;
-    }
-
     public int getPageFaults() {
         return pageFaults;
     }
 }
 
-class SC {
+class SC implements Replacer {
+
+    Queue queue;
+    Map<Integer, Boolean> seenRecently = new HashMap<>();
+    private int pageFaults;
+    private int capacity;
+    int replacerPtr = 0;
+
+    public SC(int capacity) {
+        this.queue = new CircularQueue(capacity);
+        pageFaults = 0;
+        this.capacity = capacity;
+    }
+
+    @Override
+    public void replace(int newComer) {
+        if (queue.exists(newComer)) {
+            seenRecently.put(newComer, true);
+            return;
+        }
+        pageFaults++;
+        if (!queue.isFull()) {
+            queue.add(newComer);
+            seenRecently.put(newComer, false);
+            return;
+        }
+
+
+        while (seenRecently.get(queue.get(replacerPtr))) {
+            seenRecently.put(queue.get(replacerPtr), false);
+            replacerPtr = (replacerPtr + 1) % capacity;
+        }
+        seenRecently.put(newComer, false);
+        seenRecently.remove(queue.get(replacerPtr));
+        queue.replaceElement(replacerPtr, newComer);
+        replacerPtr = (replacerPtr + 1) % capacity;
+    }
+
+    public int getPageFaults() {
+        return pageFaults;
+    }
 }

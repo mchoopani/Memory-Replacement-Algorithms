@@ -1,10 +1,10 @@
 public class Queue {
     private final int[] queue;
     protected int index;
-    private int size = 0;
+    protected int size = 0;
 
     public Queue(int capacity) {
-        this.queue = new int[Consts.QueueSize];
+        this.queue = new int[3];
         this.index = 0;
     }
 
@@ -49,6 +49,10 @@ public class Queue {
         }
         return -1;
     }
+
+    public int get(int index) {
+        return this.queue[index];
+    }
 }
 
 class CircularQueue extends Queue {
@@ -59,6 +63,7 @@ class CircularQueue extends Queue {
 
     @Override
     public boolean add(int element) {
+        super.size++;
         if (super.index == super.getQueue().length) {
             super.index = 0;
         }
