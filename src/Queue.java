@@ -1,5 +1,5 @@
 public class Queue {
-    private int[] queue;
+    private final int[] queue;
     protected int index;
     private int size = 0;
 
@@ -8,12 +8,12 @@ public class Queue {
         this.index = 0;
     }
 
-    public boolean isEmpty() {
-        return size == index;
+    public boolean isFull() {
+        return size == queue.length;
     }
 
     public boolean add(int element) {
-        if (this.isEmpty())
+        if (this.isFull())
             return false;
         size++;
         this.queue[index++] = element;
@@ -40,6 +40,14 @@ public class Queue {
             if (item == element)
                 return true;
         return false;
+    }
+
+    public int indexOf(int element) {
+        for (int i = 0; i < this.size; i++) {
+            if (this.queue[i] == element)
+                return i;
+        }
+        return -1;
     }
 }
 
