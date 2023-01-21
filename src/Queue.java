@@ -1,3 +1,5 @@
+import java.util.Arrays;
+
 public class Queue {
     private final int[] queue;
     protected int index;
@@ -52,6 +54,11 @@ public class Queue {
 
     public int get(int index) {
         return this.queue[index];
+    }
+
+    @Override
+    public String toString() {
+        return Arrays.toString(queue);
     }
 }
 

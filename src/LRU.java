@@ -2,8 +2,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Stack;
 
-public
-class LRU implements Replacer {
+public class LRU implements Replacer {
     private final Queue queue;
     private int pageFaults = 0;
     private final Stack<Integer> recentlyUsed = new Stack<>();
@@ -26,6 +25,11 @@ class LRU implements Replacer {
             queue.replaceElement(latestUsedIndexBefore, newComer);
         }
         recentlyUsed.push(newComer);
+    }
+
+    @Override
+    public void printCurrentQueue() {
+        System.out.printf("LRU: %s\n", queue);
     }
 
     private int getReplacementIndex() {

@@ -65,6 +65,10 @@ public class Client {
                 lru.replace(finalReceivedData);
                 fifo.replace(finalReceivedData);
                 secondChance.replace(finalReceivedData);
+                lru.printCurrentQueue();
+                fifo.printCurrentQueue();
+                secondChance.printCurrentQueue();
+                System.out.println("--------------------------------");
             });
             algorithmThread.start();
 

@@ -38,6 +38,11 @@ public class SC implements Replacer {
         replacerPtr = (replacerPtr + 1) % capacity;
     }
 
+    @Override
+    public void printCurrentQueue() {
+        System.out.printf("SC: %s\n", queue);
+    }
+
     public int getPageFaults() {
         return pageFaults;
     }

@@ -15,6 +15,11 @@ public class FIFO implements Replacer {
         pageFaults++;
     }
 
+    @Override
+    public void printCurrentQueue() {
+        System.out.printf("FIFO: %s\n", queue);
+    }
+
     public int getPageFaults() {
         return pageFaults;
     }
